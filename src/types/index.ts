@@ -68,8 +68,8 @@ export interface TurnData {
 export interface PlacementResult {
   correct: boolean;
   year: number;
-  title: string;
-  artist: string;
+  title?: string;      // omitted in Pro mode correct placement until reveal
+  artist?: string;     // omitted in Pro mode correct placement until reveal
   scores: PlayerScore[];
   placingPlayerId: string;
 }
@@ -80,6 +80,15 @@ export interface ArtistResult {
   buzzPlayerId: string;
   buzzPlayerName: string;
   stole: boolean; // stole the card from the active player
+}
+
+export interface ArtistTitleResult {
+  title: string;
+  artist: string;
+  artistCorrect: boolean;
+  titleCorrect: boolean;
+  scores: Record<string, number>;
+  placingPlayerId: string;
 }
 
 // ─── Timeline ─────────────────────────────────────────────────────────────────
@@ -104,6 +113,7 @@ export const EVENTS = {
   GAME_GUESS_ARTIST: 'game:guessArtist',
   GAME_NEXT: 'game:next',
   GAME_PLAY_AGAIN: 'game:playAgain',
+  GAME_GUESS_ARTIST_TITLE: 'game:guessArtistTitle',
 
   // Server -> Client
   ROOM_CREATED: 'room:created',
@@ -116,6 +126,8 @@ export const EVENTS = {
   GAME_ARTIST_RESULT: 'game:artistResult',
   GAME_OVER: 'game:over',
   GAME_SYNC: 'game:sync',
+  GAME_ARTIST_TITLE_OPEN: 'game:artistTitleOpen',
+  GAME_ARTIST_TITLE_RESULT: 'game:artistTitleResult',
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

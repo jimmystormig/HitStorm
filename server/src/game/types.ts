@@ -29,6 +29,7 @@ export interface Room {
   // pro mode state
   buzzPlayerId: string | null;
   buzzTimer: ReturnType<typeof setTimeout> | null;
+  artistTitleTimer: ReturnType<typeof setTimeout> | null;
   placingResult: PlacingResult | null;
 }
 

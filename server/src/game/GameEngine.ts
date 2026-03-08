@@ -89,6 +89,7 @@ export class GameEngine {
     room.buzzPlayerId = null;
     room.placingResult = null;
     if (room.buzzTimer) { clearTimeout(room.buzzTimer); room.buzzTimer = null; }
+    if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
 
     if (room.currentSongIndex >= room.shuffledSongs.length) {
       room.phase = 'finished';
@@ -117,9 +118,36 @@ export class GameEngine {
       .trim();
   }
 
+  normalizeTitle(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .trim();
+  }
+
   checkArtist(room: Room, guess: string): boolean {
     const song = this.getCurrentSong(room);
     if (!song) return false;
     return this.normalizeArtist(guess) === this.normalizeArtist(song.artist);
+  }
+
+  checkTitle(room: Room, guess: string): boolean {
+    const song = this.getCurrentSong(room);
+    if (!song) return false;
+    return this.normalizeTitle(guess) === this.normalizeTitle(song.title);
+  }
+
+  applyArtistTitleBonus(room: Room, playerId: string, artistCorrect: boolean, titleCorrect: boolean): void {
+    const player = room.players.get(playerId);
+    if (!player) return;
+    const song = this.getCurrentSong(room);
+    if (!song) return;
+
+    if (artistCorrect) player.score += 1;
+    if (titleCorrect) player.score += 1;
+
+    // If at least one guess is correct, add the card to the player's timeline
+    // (placement was already correct — card was added in validatePlacement;
+    //  artist/title bonus does NOT add it again, just grants extra score points)
   }
 }

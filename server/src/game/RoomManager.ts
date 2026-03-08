@@ -36,6 +36,7 @@ export class RoomManager {
       round: 1,
       buzzPlayerId: null,
       buzzTimer: null,
+      artistTitleTimer: null,
       placingResult: null,
     };
 
@@ -81,6 +82,7 @@ export class RoomManager {
 
     if (room.players.size === 0) {
       if (room.buzzTimer) clearTimeout(room.buzzTimer);
+      if (room.artistTitleTimer) clearTimeout(room.artistTitleTimer);
       this.rooms.delete(code);
       return { room, wasHost };
     }

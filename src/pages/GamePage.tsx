@@ -87,9 +87,11 @@ export default function GamePage() {
     lastResult, artistResult,
     buzzingPlayerId, buzzingPlayerName, iAmBuzzing,
     gameMode, players, isHost,
+    artistTitleOpen, artistTitleResult,
   } = useGameStore();
 
   const [artistGuess, setArtistGuess] = useState('');
+  const [titleGuess, setTitleGuess] = useState('');
   const [buzzTimeout, setBuzzTimeout] = useState(false);
 
   const isMyTurn = playerId === activePlayerId;
@@ -100,6 +102,7 @@ export default function GamePage() {
   // Reset state on new turn
   useEffect(() => {
     setArtistGuess('');
+    setTitleGuess('');
     setBuzzTimeout(false);
   }, [round]);
 
@@ -115,6 +118,16 @@ export default function GamePage() {
     if (!artistGuess.trim()) return;
     emit(EVENTS.GAME_GUESS_ARTIST, { artist: artistGuess.trim() });
     setArtistGuess('');
+  };
+
+  const handleArtistTitleSubmit = () => {
+    emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: artistGuess.trim(), title: titleGuess.trim() });
+    setArtistGuess('');
+    setTitleGuess('');
+  };
+
+  const handleArtistTitleSkip = () => {
+    emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: '', title: '' });
   };
 
   return (
@@ -197,12 +210,33 @@ export default function GamePage() {
             <span className="text-white font-bold text-lg">{lastResult.year}</span>
             {isMyTurn && <span className="text-white/70 text-sm">{lastResult.correct ? 'Correct!' : 'Wrong placement'}</span>}
           </div>
-          <p className="text-white font-semibold">{lastResult.title}</p>
-          <p className="text-white/70 text-sm">{lastResult.artist}</p>
+          {/* In Pro mode, title/artist are hidden until the artist+title guessing phase completes */}
+          {artistTitleResult ? (
+            <>
+              <p className="text-white font-semibold">{artistTitleResult.title}</p>
+              <p className="text-white/70 text-sm">{artistTitleResult.artist}</p>
+              <div className="flex gap-2 mt-1 flex-wrap">
+                {artistTitleResult.artistCorrect && (
+                  <span className="text-xs bg-green-500/30 text-green-200 px-2 py-0.5 rounded-full">✅ Artist!</span>
+                )}
+                {artistTitleResult.titleCorrect && (
+                  <span className="text-xs bg-green-500/30 text-green-200 px-2 py-0.5 rounded-full">✅ Title!</span>
+                )}
+                {!artistTitleResult.artistCorrect && !artistTitleResult.titleCorrect && isMyTurn && (
+                  <span className="text-xs bg-white/10 text-white/50 px-2 py-0.5 rounded-full">No bonus this round</span>
+                )}
+              </div>
+            </>
+          ) : lastResult.title !== undefined ? (
+            <>
+              <p className="text-white font-semibold">{lastResult.title}</p>
+              <p className="text-white/70 text-sm">{lastResult.artist}</p>
+            </>
+          ) : null}
         </div>
       )}
 
-      {/* Artist result (Pro mode) */}
+      {/* Artist result (Pro mode buzz steal) */}
       {artistResult && (
         <div className={`mx-5 mb-2 rounded-2xl px-4 py-2 text-sm animate-slide-up ${
           artistResult.correct ? 'bg-green-500/10' : 'bg-red-500/10'
@@ -228,14 +262,14 @@ export default function GamePage() {
           </button>
         )}
 
-        {/* Who's buzzing */}
+        {/* Who's buzzing (artist steal) */}
         {buzzingPlayerId && !iAmBuzzing && (
           <div className="w-full py-3 bg-brand-700/40 rounded-xl text-center text-white text-sm">
             {buzzingPlayerName} is guessing the artist...
           </div>
         )}
 
-        {/* Artist input */}
+        {/* Artist input (buzz steal) */}
         {canTypeArtist && (
           <div className="flex gap-2 animate-slide-up">
             <input
@@ -257,8 +291,53 @@ export default function GamePage() {
           </div>
         )}
 
-        {/* Host: next button after reveal */}
-        {isHost && lastResult && !canTypeArtist && (
+        {/* Pro mode: active player guessing artist + title after correct placement */}
+        {isMyTurn && artistTitleOpen && (
+          <div className="flex flex-col gap-2 animate-slide-up">
+            <p className="text-white/70 text-sm text-center">Name the artist and song title for bonus points!</p>
+            <input
+              type="text"
+              placeholder="Artist name..."
+              value={artistGuess}
+              onChange={e => setArtistGuess(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleArtistTitleSubmit()}
+              className="px-4 py-3 rounded-xl bg-brand-700 text-white placeholder-brand-100/60 outline-none focus:ring-2 focus:ring-white/30"
+              autoFocus
+            />
+            <input
+              type="text"
+              placeholder="Song title..."
+              value={titleGuess}
+              onChange={e => setTitleGuess(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleArtistTitleSubmit()}
+              className="px-4 py-3 rounded-xl bg-brand-700 text-white placeholder-brand-100/60 outline-none focus:ring-2 focus:ring-white/30"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleArtistTitleSubmit}
+                className="flex-1 py-3 bg-white text-brand-900 rounded-xl font-bold active:scale-95 transition-transform"
+              >
+                Submit
+              </button>
+              <button
+                onClick={handleArtistTitleSkip}
+                className="px-5 py-3 bg-brand-700/60 text-white/70 rounded-xl font-medium active:scale-95 transition-transform"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Pro mode: spectator view while active player guesses artist + title */}
+        {!isMyTurn && artistTitleOpen && (
+          <div className="w-full py-3 bg-brand-700/40 rounded-xl text-center text-white text-sm">
+            {activePlayerName} is guessing the artist and title...
+          </div>
+        )}
+
+        {/* Host: next button after reveal — hidden while artist+title guessing is open */}
+        {isHost && lastResult && !canTypeArtist && !artistTitleOpen && (
           <button
             onClick={() => emit(EVENTS.GAME_NEXT)}
             className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold active:scale-95 transition-transform"

@@ -4,7 +4,7 @@ import type { RoomManager } from '../game/RoomManager.js';
 import { GameEngine } from '../game/GameEngine.js';
 import type { PlaylistLoader } from '../playlists/PlaylistLoader.js';
 import { ytdlp } from '../routes/stream.js';
-import { PORT, getLocalIP, BUZZ_WINDOW_MS, REVEAL_DURATION_MS } from '../config.js';
+import { PORT, getLocalIP, BUZZ_WINDOW_MS, REVEAL_DURATION_MS, ARTIST_TITLE_WINDOW_MS } from '../config.js';
 
 const engine = new GameEngine();
 
@@ -232,20 +232,51 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       const placingPlayer = room.players.get(socket.id);
       const activePlayerTimeline = placingPlayer?.timeline.map(s => ({ year: s.year, title: s.title, artist: s.artist })) ?? [];
 
-      broadcast(room.code, EVENTS.GAME_RESULT, { ...result, activePlayerTimeline });
-
       // Pre-fetch next song in background
       const nextSong = room.shuffledSongs[room.currentSongIndex + 1];
       if (nextSong) ytdlp.prefetch(nextSong.videoId);
 
-      if (room.settings.gameMode === 'pro' && !result.correct) {
-        // Open buzz window for artist steal
+      if (room.settings.gameMode === 'pro' && result.correct) {
+        // Pro mode + correct placement: hide title/artist from result, open artist+title guessing phase
+        broadcast(room.code, EVENTS.GAME_RESULT, {
+          correct: result.correct,
+          year: result.year,
+          scores: result.scores,
+          placingPlayerId: result.placingPlayerId,
+          activePlayerTimeline,
+          // title and artist intentionally omitted
+        });
+        broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_OPEN, {});
+
+        room.artistTitleTimer = setTimeout(() => {
+          if (room.phase === 'placing') {
+            // Time's up — reveal without bonus and advance
+            const song = engine.getCurrentSong(room);
+            broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_RESULT, {
+              title: song?.title ?? '',
+              artist: song?.artist ?? '',
+              artistCorrect: false,
+              titleCorrect: false,
+              scores: Object.fromEntries(
+                Array.from(room.players.values()).map(p => [p.id, p.score])
+              ),
+              placingPlayerId: socket.id,
+            });
+            setTimeout(() => {
+              if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
+            }, REVEAL_DURATION_MS);
+          }
+        }, ARTIST_TITLE_WINDOW_MS);
+      } else if (room.settings.gameMode === 'pro' && !result.correct) {
+        // Pro mode + wrong placement: broadcast full result and open buzz window for artist steal
+        broadcast(room.code, EVENTS.GAME_RESULT, { ...result, activePlayerTimeline });
         broadcast(room.code, EVENTS.GAME_BUZZ_OPEN, { buzzingPlayerId: null });
         room.buzzTimer = setTimeout(() => {
           if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
         }, BUZZ_WINDOW_MS);
       } else {
-        // Classic mode or correct placement: auto-advance after reveal
+        // Classic mode (correct or wrong): broadcast full result and auto-advance after reveal
+        broadcast(room.code, EVENTS.GAME_RESULT, { ...result, activePlayerTimeline });
         setTimeout(() => {
           if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
         }, REVEAL_DURATION_MS);
@@ -309,10 +340,39 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       }, REVEAL_DURATION_MS);
     });
 
+    socket.on(EVENTS.GAME_GUESS_ARTIST_TITLE, ({ artist, title } = {}) => {
+      const room = rooms.getBySocket(socket.id);
+      if (!room || room.phase !== 'placing' || room.settings.gameMode !== 'pro') return;
+      const currentPlayer = engine.getCurrentPlayer(room);
+      if (!currentPlayer || currentPlayer.id !== socket.id) return; // only the active player
+      if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
+
+      const artistCorrect = engine.checkArtist(room, artist ?? '');
+      const titleCorrect = engine.checkTitle(room, title ?? '');
+      engine.applyArtistTitleBonus(room, socket.id, artistCorrect, titleCorrect);
+
+      const song = engine.getCurrentSong(room);
+      broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_RESULT, {
+        title: song?.title ?? '',
+        artist: song?.artist ?? '',
+        artistCorrect,
+        titleCorrect,
+        scores: Object.fromEntries(
+          Array.from(room.players.values()).map(p => [p.id, p.score])
+        ),
+        placingPlayerId: socket.id,
+      });
+
+      setTimeout(() => {
+        if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
+      }, REVEAL_DURATION_MS);
+    });
+
     socket.on(EVENTS.GAME_NEXT, () => {
       const room = rooms.getBySocket(socket.id);
       if (!room || room.hostId !== socket.id) return;
       if (room.phase !== 'placing' && room.phase !== 'revealing') return;
+      if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
       finishTurn(io, rooms, engine, room.code);
     });
 
@@ -325,6 +385,8 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       room.currentPlayerIndex = 0;
       room.round = 1;
       room.buzzPlayerId = null;
+      if (room.buzzTimer) { clearTimeout(room.buzzTimer); room.buzzTimer = null; }
+      if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
       room.placingResult = null;
       for (const p of room.players.values()) { p.score = 0; p.timeline = []; }
       broadcast(room.code, EVENTS.ROOM_UPDATED, {

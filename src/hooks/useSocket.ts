@@ -230,6 +230,14 @@ export function useSocket() {
       useGameStore.getState().setArtistResult(result);
     });
 
+    socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, () => {
+      useGameStore.getState().setArtistTitleOpen(true);
+    });
+
+    socket.on(EVENTS.GAME_ARTIST_TITLE_RESULT, (r) => {
+      useGameStore.getState().setArtistTitleResult(r);
+    });
+
     socket.on(EVENTS.GAME_OVER, ({ winner, scores }) => {
       useGameStore.getState().setGameOver(winner, scores);
       clearSession();

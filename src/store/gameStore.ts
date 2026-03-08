@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { PlayerInfo, PlayerScore, PlacementResult, ArtistResult, GameMode } from '../types';
+import type { PlayerInfo, PlayerScore, PlacementResult, ArtistResult, ArtistTitleResult, GameMode } from '../types';
 
 interface GameStore {
   // Connection / identity
@@ -36,6 +36,8 @@ interface GameStore {
   buzzingPlayerId: string | null;
   buzzingPlayerName: string | null;
   iAmBuzzing: boolean;
+  artistTitleOpen: boolean;
+  artistTitleResult: ArtistTitleResult | null;
 
   // Actions
   setIdentity: (id: string, name: string, isHost: boolean) => void;
@@ -48,6 +50,8 @@ interface GameStore {
   setLastResult: (r: PlacementResult | null) => void;
   setBuzzOpen: (buzzingPlayerId: string | null, buzzingPlayerName: string | null) => void;
   setArtistResult: (r: ArtistResult | null) => void;
+  setArtistTitleOpen: (open: boolean) => void;
+  setArtistTitleResult: (r: ArtistTitleResult) => void;
   setGameOver: (winner: GameStore['winner'], scores: PlayerScore[]) => void;
   setGameMode: (mode: GameMode) => void;
   reset: () => void;
@@ -79,6 +83,8 @@ const initial = {
   buzzingPlayerId: null,
   buzzingPlayerName: null,
   iAmBuzzing: false,
+  artistTitleOpen: false,
+  artistTitleResult: null,
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -108,6 +114,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       buzzingPlayerId: null,
       buzzingPlayerName: null,
       iAmBuzzing: false,
+      artistTitleOpen: false,
+      artistTitleResult: null,
     }),
 
   addToTimeline: (card) =>
@@ -127,7 +135,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
           })
         : state.players,
     }));
-    if (r?.correct && r.placingPlayerId === get().playerId) {
+    // Only add to timeline when title is present (Classic mode path).
+    // In Pro mode with a correct placement, title is omitted until artistTitleResult arrives.
+    if (r?.correct && r.placingPlayerId === get().playerId && r.title !== undefined && r.artist !== undefined) {
       get().addToTimeline({ id: r.placingPlayerId + r.year, title: r.title, artist: r.artist, year: r.year });
     }
   },
@@ -140,6 +150,30 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (r?.stole && r.buzzPlayerId === get().playerId) {
       // We stole the card — add to our timeline
       // The server handles score; we update local timeline optimistically via result data
+    }
+  },
+
+  setArtistTitleOpen: (open) => set({ artistTitleOpen: open }),
+
+  setArtistTitleResult: (r) => {
+    set(state => ({
+      artistTitleResult: r,
+      artistTitleOpen: false,
+      // Update player scores from the result
+      players: state.players.map(p => {
+        const newScore = r.scores[p.id];
+        return newScore !== undefined ? { ...p, score: newScore } : p;
+      }),
+    }));
+    // If we are the placing player, add the card to our timeline now that title/artist are known
+    const { playerId, lastResult } = get();
+    if (r.placingPlayerId === playerId && lastResult?.correct && lastResult.year !== undefined) {
+      get().addToTimeline({
+        id: r.placingPlayerId + lastResult.year,
+        title: r.title,
+        artist: r.artist,
+        year: lastResult.year,
+      });
     }
   },
 

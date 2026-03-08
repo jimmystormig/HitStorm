@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { QRCodeSVG } from 'qrcode.react';
 import { EVENTS } from '../types';
-import type { PlayerInfo, PlayerScore, PlacementResult } from '../types';
+import type { PlayerInfo, PlayerScore, PlacementResult, ArtistTitleResult } from '../types';
 
 type Phase = 'lobby' | 'playing' | 'placing' | 'finished';
 
@@ -48,6 +48,8 @@ export default function HostDisplayPage() {
   const [activeTimeline, setActiveTimeline] = useState<TimelineEntry[]>([]);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [needsInteraction, setNeedsInteraction] = useState(true);
+  const [artistTitleOpen, setArtistTitleOpen] = useState(false);
+  const [artistTitleResult, setArtistTitleResultState] = useState<ArtistTitleResult | null>(null);
 
   const playAudio = (src?: string) => {
     if (!audioRef.current) return;
@@ -84,6 +86,8 @@ export default function HostDisplayPage() {
       setScores([]);
       setResult(null);
       setArtistResult(null);
+      setArtistTitleOpen(false);
+      setArtistTitleResultState(null);
     });
 
     socket.on(EVENTS.GAME_TURN, (data: TurnData) => {
@@ -92,6 +96,8 @@ export default function HostDisplayPage() {
       setResult(null);
       setArtistResult(null);
       setBuzzingPlayer(null);
+      setArtistTitleOpen(false);
+      setArtistTitleResultState(null);
       setPhase('playing');
 
       if (audioRef.current) {
@@ -118,6 +124,23 @@ export default function HostDisplayPage() {
     socket.on(EVENTS.GAME_ARTIST_RESULT, (r: ArtistResultData) => {
       setArtistResult(r);
       if (r.scores) setScores(r.scores);
+    });
+
+    socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, () => {
+      setArtistTitleOpen(true);
+      setArtistTitleResultState(null);
+    });
+
+    socket.on(EVENTS.GAME_ARTIST_TITLE_RESULT, (r: ArtistTitleResult) => {
+      setArtistTitleResultState(r);
+      setArtistTitleOpen(false);
+      if (r.scores) {
+        // Convert scores Record<string,number> to PlayerScore[] by merging with current scores state
+        setScores(prev => prev.map(p => {
+          const newScore = r.scores[p.id];
+          return newScore !== undefined ? { ...p, score: newScore } : p;
+        }));
+      }
     });
 
     socket.on(EVENTS.GAME_OVER, ({ winner: w, scores: s }: { winner: { name: string; score: number }; scores: PlayerScore[] }) => {
@@ -242,8 +265,33 @@ export default function HostDisplayPage() {
                   {result.correct ? 'Correct!' : 'Wrong placement'}
                 </p>
                 <p className="text-7xl font-bold mb-2">{result.year}</p>
-                <p className="text-3xl font-bold">{result.title}</p>
-                <p className="text-xl text-brand-100 mt-1">{result.artist}</p>
+
+                {/* Show title/artist: hidden during artist+title guessing phase, revealed after */}
+                {artistTitleResult ? (
+                  <>
+                    <p className="text-3xl font-bold">{artistTitleResult.title}</p>
+                    <p className="text-xl text-brand-100 mt-1">{artistTitleResult.artist}</p>
+                    <div className="flex gap-3 justify-center mt-3 flex-wrap">
+                      {artistTitleResult.artistCorrect && (
+                        <span className="bg-green-500/30 text-green-200 px-4 py-1 rounded-full font-semibold">✅ Artist!</span>
+                      )}
+                      {artistTitleResult.titleCorrect && (
+                        <span className="bg-green-500/30 text-green-200 px-4 py-1 rounded-full font-semibold">✅ Title!</span>
+                      )}
+                    </div>
+                  </>
+                ) : artistTitleOpen ? (
+                  <div className="mt-2 px-6 py-3 bg-yellow-400/20 rounded-2xl animate-pulse">
+                    <p className="text-xl font-bold">
+                      {turn?.activePlayerName} is guessing the artist and title... 🎤
+                    </p>
+                  </div>
+                ) : result.title !== undefined ? (
+                  <>
+                    <p className="text-3xl font-bold">{result.title}</p>
+                    <p className="text-xl text-brand-100 mt-1">{result.artist}</p>
+                  </>
+                ) : null}
 
                 {artistResult && (
                   <div className={`mt-4 px-6 py-3 rounded-2xl animate-slide-up ${artistResult.correct ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
