@@ -2,11 +2,6 @@
 
 ## Fel
 
-- Många låter är fel
-  - Högt över havet är inte från 1972
-  - Fröken fräken är fel låt
-  - Inga instrumentella låtar
-  - Välj svenska versionen om den finns
 - Der går inte att start nytt spel
 - Funktionen med artistnamnet funkar inte
   - Man ser namnet på artisten
