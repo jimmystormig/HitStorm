@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Claude
+.claude/settings.local.json
+
+# Test artifacts
+test-results/
+playwright-report/
+/tmp/ios_*.png
+
+# Misc
+hitstorm-test.mjs

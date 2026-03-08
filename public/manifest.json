@@ -1,0 +1,11 @@
+{
+  "name": "HitStorm",
+  "short_name": "HitStorm",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#581c87",
+  "theme_color": "#581c87",
+  "icons": [
+    { "src": "/hitstorm-logo.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}
