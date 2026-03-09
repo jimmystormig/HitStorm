@@ -88,11 +88,14 @@ export default function GamePage() {
     buzzingPlayerId, buzzingPlayerName, iAmBuzzing,
     gameMode, players, isHost,
     artistTitleOpen, artistTitleResult,
+    artistChoices, titleChoices,
   } = useGameStore();
 
-  const [artistGuess, setArtistGuess] = useState('');
-  const [titleGuess, setTitleGuess] = useState('');
+  const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
+  const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [buzzTimeout, setBuzzTimeout] = useState(false);
+  const [artistTitleCountdown, setArtistTitleCountdown] = useState(15);
+  const [buzzCountdown, setBuzzCountdown] = useState(8);
 
   const isMyTurn = playerId === activePlayerId;
   const isOtherPlayersTurn = !isMyTurn;
@@ -101,10 +104,36 @@ export default function GamePage() {
 
   // Reset state on new turn
   useEffect(() => {
-    setArtistGuess('');
-    setTitleGuess('');
+    setSelectedArtist(null);
+    setSelectedTitle(null);
     setBuzzTimeout(false);
   }, [round]);
+
+  // Artist+title countdown (active player, 15 s)
+  useEffect(() => {
+    if (!artistTitleOpen || !isMyTurn) return;
+    setArtistTitleCountdown(15);
+    const id = setInterval(() => {
+      setArtistTitleCountdown(n => {
+        if (n <= 1) { clearInterval(id); return 0; }
+        return n - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [artistTitleOpen, isMyTurn]);
+
+  // Buzz steal countdown (buzzing player, 8 s)
+  useEffect(() => {
+    if (!canTypeArtist) return;
+    setBuzzCountdown(8);
+    const id = setInterval(() => {
+      setBuzzCountdown(n => {
+        if (n <= 1) { clearInterval(id); return 0; }
+        return n - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [canTypeArtist]);
 
   const handlePlace = (position: number) => {
     emit(EVENTS.GAME_PLACE, { position });
@@ -114,21 +143,22 @@ export default function GamePage() {
     emit(EVENTS.GAME_BUZZ);
   };
 
-  const handleArtistGuess = () => {
-    if (!artistGuess.trim()) return;
-    emit(EVENTS.GAME_GUESS_ARTIST, { artist: artistGuess.trim() });
-    setArtistGuess('');
-  };
-
-  const handleArtistTitleSubmit = () => {
-    emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: artistGuess.trim(), title: titleGuess.trim() });
-    setArtistGuess('');
-    setTitleGuess('');
+  const handleBuzzArtistSelect = (artist: string) => {
+    emit(EVENTS.GAME_GUESS_ARTIST, { artist });
   };
 
   const handleArtistTitleSkip = () => {
     emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: '', title: '' });
   };
+
+  // Auto-submit when both artist and title are selected
+  useEffect(() => {
+    if (selectedArtist && selectedTitle && artistTitleOpen) {
+      emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: selectedArtist, title: selectedTitle });
+      setSelectedArtist(null);
+      setSelectedTitle(null);
+    }
+  }, [selectedArtist, selectedTitle, artistTitleOpen]);
 
   return (
     <div className="h-full flex flex-col safe-top safe-bottom">
@@ -187,6 +217,9 @@ export default function GamePage() {
           {lastResult ? 'Song revealed' : 'Music playing on speakers'}
         </p>
       </div>
+
+      {/* Scrollable content: timeline + reveal + controls */}
+      <div className="flex-1 overflow-y-auto">
 
       {/* Timeline */}
       <div className="mx-5 mb-2 bg-brand-800/40 rounded-2xl overflow-hidden flex-shrink-0">
@@ -251,7 +284,7 @@ export default function GamePage() {
       )}
 
       {/* Controls section */}
-      <div className="flex-1 flex flex-col justify-end px-5 pb-4 gap-3">
+      <div className="flex flex-col px-5 pt-2 pb-6 gap-3">
         {/* Pro mode buzz button */}
         {showBuzzButton && (
           <button
@@ -269,63 +302,81 @@ export default function GamePage() {
           </div>
         )}
 
-        {/* Artist input (buzz steal) */}
-        {canTypeArtist && (
-          <div className="flex gap-2 animate-slide-up">
-            <input
-              type="text"
-              placeholder="Artist name..."
-              value={artistGuess}
-              onChange={e => setArtistGuess(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleArtistGuess()}
-              className="flex-1 px-4 py-3 rounded-xl bg-brand-700 text-white placeholder-brand-100/60 outline-none focus:ring-2 focus:ring-white/30"
-              autoFocus
-            />
-            <button
-              onClick={handleArtistGuess}
-              disabled={!artistGuess.trim()}
-              className="px-5 py-3 bg-white text-brand-900 rounded-xl font-bold disabled:opacity-40 active:scale-95"
-            >
-              Guess
-            </button>
+        {/* Artist choices (buzz steal) */}
+        {canTypeArtist && artistChoices && (
+          <div className="flex flex-col gap-2 animate-slide-up">
+            <div className={`flex items-center justify-center gap-1.5 text-sm font-bold px-3 py-1 rounded-full self-center ${
+              buzzCountdown <= 5 ? 'bg-red-500/30 text-red-200' :
+              buzzCountdown <= 8 ? 'bg-yellow-500/30 text-yellow-200' :
+              'bg-white/10 text-white/70'
+            }`}>
+              ⏱ {buzzCountdown}s
+            </div>
+            <p className="text-white/70 text-sm text-center">Who is the artist?</p>
+            {artistChoices.map(artist => (
+              <button
+                key={artist}
+                onClick={() => handleBuzzArtistSelect(artist)}
+                className="w-full py-3 px-4 bg-brand-700 text-white rounded-xl font-medium active:scale-95 transition-transform border border-white/10 hover:bg-brand-600"
+              >
+                {artist}
+              </button>
+            ))}
           </div>
         )}
 
         {/* Pro mode: active player guessing artist + title after correct placement */}
-        {isMyTurn && artistTitleOpen && (
-          <div className="flex flex-col gap-2 animate-slide-up">
-            <p className="text-white/70 text-sm text-center">Name the artist and song title for bonus points!</p>
-            <input
-              type="text"
-              placeholder="Artist name..."
-              value={artistGuess}
-              onChange={e => setArtistGuess(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleArtistTitleSubmit()}
-              className="px-4 py-3 rounded-xl bg-brand-700 text-white placeholder-brand-100/60 outline-none focus:ring-2 focus:ring-white/30"
-              autoFocus
-            />
-            <input
-              type="text"
-              placeholder="Song title..."
-              value={titleGuess}
-              onChange={e => setTitleGuess(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleArtistTitleSubmit()}
-              className="px-4 py-3 rounded-xl bg-brand-700 text-white placeholder-brand-100/60 outline-none focus:ring-2 focus:ring-white/30"
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={handleArtistTitleSubmit}
-                className="flex-1 py-3 bg-white text-brand-900 rounded-xl font-bold active:scale-95 transition-transform"
-              >
-                Submit
-              </button>
-              <button
-                onClick={handleArtistTitleSkip}
-                className="px-5 py-3 bg-brand-700/60 text-white/70 rounded-xl font-medium active:scale-95 transition-transform"
-              >
-                Skip
-              </button>
+        {isMyTurn && artistTitleOpen && artistChoices && titleChoices && (
+          <div className="flex flex-col gap-3 animate-slide-up">
+            <div className={`flex items-center justify-center gap-1.5 text-sm font-bold px-3 py-1 rounded-full self-center ${
+              artistTitleCountdown <= 5 ? 'bg-red-500/30 text-red-200' :
+              artistTitleCountdown <= 8 ? 'bg-yellow-500/30 text-yellow-200' :
+              'bg-white/10 text-white/70'
+            }`}>
+              ⏱ {artistTitleCountdown}s
             </div>
+            <div>
+              <p className="text-white/70 text-sm text-center mb-2">Who is the artist?</p>
+              <div className="flex flex-col gap-2">
+                {artistChoices.map(artist => (
+                  <button
+                    key={artist}
+                    onClick={() => setSelectedArtist(artist)}
+                    className={`w-full py-3 px-4 rounded-xl font-medium active:scale-95 transition-all border ${
+                      selectedArtist === artist
+                        ? 'bg-white text-brand-900 border-white'
+                        : 'bg-brand-700 text-white border-white/10 hover:bg-brand-600'
+                    }`}
+                  >
+                    {artist}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-white/70 text-sm text-center mb-2">What is the song title?</p>
+              <div className="flex flex-col gap-2">
+                {titleChoices.map(title => (
+                  <button
+                    key={title}
+                    onClick={() => setSelectedTitle(title)}
+                    className={`w-full py-3 px-4 rounded-xl font-medium active:scale-95 transition-all border ${
+                      selectedTitle === title
+                        ? 'bg-white text-brand-900 border-white'
+                        : 'bg-brand-700 text-white border-white/10 hover:bg-brand-600'
+                    }`}
+                  >
+                    {title}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              onClick={handleArtistTitleSkip}
+              className="w-full py-2 bg-brand-700/60 text-white/70 rounded-xl font-medium active:scale-95 transition-transform text-sm"
+            >
+              Skip
+            </button>
           </div>
         )}
 
@@ -346,6 +397,8 @@ export default function GamePage() {
           </button>
         )}
       </div>
+
+      </div>{/* end scrollable */}
     </div>
   );
 }

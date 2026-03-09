@@ -222,16 +222,16 @@ export function useSocket() {
       useGameStore.getState().setLastResult(result);
     });
 
-    socket.on(EVENTS.GAME_BUZZ_OPEN, ({ buzzingPlayerId, buzzingPlayerName }) => {
-      useGameStore.getState().setBuzzOpen(buzzingPlayerId, buzzingPlayerName ?? null);
+    socket.on(EVENTS.GAME_BUZZ_OPEN, ({ buzzingPlayerId, buzzingPlayerName, artistChoices }) => {
+      useGameStore.getState().setBuzzOpen(buzzingPlayerId, buzzingPlayerName ?? null, artistChoices);
     });
 
     socket.on(EVENTS.GAME_ARTIST_RESULT, (result) => {
       useGameStore.getState().setArtistResult(result);
     });
 
-    socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, () => {
-      useGameStore.getState().setArtistTitleOpen(true);
+    socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, ({ artistChoices, titleChoices }) => {
+      useGameStore.getState().setArtistTitleOpen(true, artistChoices, titleChoices);
     });
 
     socket.on(EVENTS.GAME_ARTIST_TITLE_RESULT, (r) => {

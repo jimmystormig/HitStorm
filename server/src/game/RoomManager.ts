@@ -6,7 +6,7 @@ export class RoomManager {
   private rooms = new Map<string, Room>();
   private socketToRoom = new Map<string, string>(); // socketId -> roomCode
 
-  createRoom(socketId: string, playerName: string, gameMode: GameMode = 'classic'): Room {
+  createRoom(socketId: string, playerName: string, gameMode: GameMode = 'classic', winScore = 10): Room {
     let code: string;
     do { code = generateRoomCode(); } while (this.rooms.has(code));
 
@@ -28,7 +28,7 @@ export class RoomManager {
       phase: 'lobby',
       players: new Map([[playerId, player]]),
       playerOrder: [playerId],
-      settings: { winScore: 10, gameMode },
+      settings: { winScore, gameMode },
       selectedPlaylistId: null,
       shuffledSongs: [],
       currentSongIndex: 0,

@@ -6,6 +6,13 @@ export interface Song {
   artist: string;
   year: number;
   videoId: string;
+  wrongArtists?: string[];
+  wrongTitles?: string[];
+}
+
+export interface ArtistTitleChoices {
+  artistChoices: string[];
+  titleChoices: string[];
 }
 
 export interface PlaylistMeta {

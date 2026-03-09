@@ -9,6 +9,7 @@ export default function HomePage() {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [gameMode, setGameMode] = useState<'classic' | 'pro'>('classic');
+  const [winScore, setWinScore] = useState(10);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -55,7 +56,7 @@ export default function HomePage() {
     setError('');
     setLoading(true);
     useGameStore.setState({ playerName: name, isHost: true });
-    emit(EVENTS.ROOM_CREATE, { playerName: name, gameMode });
+    emit(EVENTS.ROOM_CREATE, { playerName: name, gameMode, winScore });
   };
 
   const handleJoin = () => {
@@ -136,20 +137,36 @@ export default function HomePage() {
         )}
 
         {!isJoining && (
-          <div className="flex bg-brand-700 rounded-xl p-1">
-            <button
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${gameMode === 'classic' ? 'bg-white text-brand-900' : 'text-brand-100'}`}
-              onClick={() => setGameMode('classic')}
-            >
-              Classic
-            </button>
-            <button
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${gameMode === 'pro' ? 'bg-white text-brand-900' : 'text-brand-100'}`}
-              onClick={() => setGameMode('pro')}
-            >
-              Pro (+ Artist)
-            </button>
-          </div>
+          <>
+            <div className="flex bg-brand-700 rounded-xl p-1">
+              <button
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${gameMode === 'classic' ? 'bg-white text-brand-900' : 'text-brand-100'}`}
+                onClick={() => { setGameMode('classic'); setWinScore(10); }}
+              >
+                Classic
+              </button>
+              <button
+                className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${gameMode === 'pro' ? 'bg-white text-brand-900' : 'text-brand-100'}`}
+                onClick={() => { setGameMode('pro'); setWinScore(30); }}
+              >
+                Pro (+ Artist)
+              </button>
+            </div>
+            <div>
+              <p className="text-brand-100 text-xs text-center mb-1.5">Cards to win</p>
+              <div className="flex bg-brand-700 rounded-xl p-1 gap-0.5">
+                {[5, 10, 15, 20, 30].map(n => (
+                  <button
+                    key={n}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${winScore === n ? 'bg-white text-brand-900' : 'text-brand-100'}`}
+                    onClick={() => setWinScore(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         {/* Error message */}

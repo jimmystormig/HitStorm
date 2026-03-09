@@ -38,6 +38,8 @@ interface GameStore {
   iAmBuzzing: boolean;
   artistTitleOpen: boolean;
   artistTitleResult: ArtistTitleResult | null;
+  artistChoices: string[] | null;
+  titleChoices: string[] | null;
 
   // Actions
   setIdentity: (id: string, name: string, isHost: boolean) => void;
@@ -48,9 +50,9 @@ interface GameStore {
   setTurn: (activePlayerId: string, activePlayerName: string, round: number, totalSongs: number, streamUrl: string) => void;
   addToTimeline: (card: import('../types').TimelineCard) => void;
   setLastResult: (r: PlacementResult | null) => void;
-  setBuzzOpen: (buzzingPlayerId: string | null, buzzingPlayerName: string | null) => void;
+  setBuzzOpen: (buzzingPlayerId: string | null, buzzingPlayerName: string | null, artistChoices?: string[]) => void;
   setArtistResult: (r: ArtistResult | null) => void;
-  setArtistTitleOpen: (open: boolean) => void;
+  setArtistTitleOpen: (open: boolean, artistChoices?: string[], titleChoices?: string[]) => void;
   setArtistTitleResult: (r: ArtistTitleResult) => void;
   setGameOver: (winner: GameStore['winner'], scores: PlayerScore[]) => void;
   setGameMode: (mode: GameMode) => void;
@@ -85,6 +87,8 @@ const initial = {
   iAmBuzzing: false,
   artistTitleOpen: false,
   artistTitleResult: null,
+  artistChoices: null,
+  titleChoices: null,
 };
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -116,6 +120,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       iAmBuzzing: false,
       artistTitleOpen: false,
       artistTitleResult: null,
+      artistChoices: null,
+      titleChoices: null,
     }),
 
   addToTimeline: (card) =>
@@ -142,8 +148,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 
-  setBuzzOpen: (buzzingPlayerId, buzzingPlayerName) =>
-    set({ buzzingPlayerId, buzzingPlayerName, iAmBuzzing: buzzingPlayerId === get().playerId }),
+  setBuzzOpen: (buzzingPlayerId, buzzingPlayerName, artistChoices) =>
+    set({
+      buzzingPlayerId, buzzingPlayerName,
+      iAmBuzzing: buzzingPlayerId === get().playerId,
+      artistChoices: artistChoices ?? get().artistChoices,
+    }),
 
   setArtistResult: (r) => {
     set({ artistResult: r });
@@ -153,7 +163,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
   },
 
-  setArtistTitleOpen: (open) => set({ artistTitleOpen: open }),
+  setArtistTitleOpen: (open, artistChoices, titleChoices) =>
+    set({ artistTitleOpen: open, artistChoices: artistChoices ?? null, titleChoices: titleChoices ?? null }),
 
   setArtistTitleResult: (r) => {
     set(state => ({

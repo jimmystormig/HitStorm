@@ -35,6 +35,10 @@ export default function HostDisplayPage() {
   const { roomCode } = useParams<{ roomCode: string }>();
   const audioRef = useRef<HTMLAudioElement>(null);
   const audioUnlocked = useRef(false); // ref so event handlers always see current value
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const animFrameRef = useRef<number>(0);
 
   const [phase, setPhase] = useState<Phase>('lobby');
   const [players, setPlayers] = useState<PlayerInfo[]>([]);
@@ -50,6 +54,25 @@ export default function HostDisplayPage() {
   const [needsInteraction, setNeedsInteraction] = useState(true);
   const [artistTitleOpen, setArtistTitleOpen] = useState(false);
   const [artistTitleResult, setArtistTitleResultState] = useState<ArtistTitleResult | null>(null);
+  const [spectrumBars, setSpectrumBars] = useState<number[]>(Array(40).fill(0));
+
+  const startAnalyser = () => {
+    if (!analyserRef.current) return;
+    const data = new Uint8Array(analyserRef.current.frequencyBinCount);
+    const tick = () => {
+      analyserRef.current!.getByteFrequencyData(data);
+      const N = 40;
+      const step = Math.floor(data.length / N);
+      setSpectrumBars(Array.from({ length: N }, (_, i) => data[i * step] / 255 * 100));
+      animFrameRef.current = requestAnimationFrame(tick);
+    };
+    animFrameRef.current = requestAnimationFrame(tick);
+  };
+
+  const stopAnalyser = () => {
+    cancelAnimationFrame(animFrameRef.current);
+    setSpectrumBars(Array(40).fill(0));
+  };
 
   const playAudio = (src?: string) => {
     if (!audioRef.current) return;
@@ -64,6 +87,18 @@ export default function HostDisplayPage() {
   const unlockAndPlay = () => {
     audioUnlocked.current = true;
     setNeedsInteraction(false);
+    if (!audioCtxRef.current && audioRef.current) {
+      const ctx = new AudioContext();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.8;
+      const source = ctx.createMediaElementSource(audioRef.current);
+      source.connect(analyser);
+      analyser.connect(ctx.destination);
+      audioCtxRef.current = ctx;
+      analyserRef.current = analyser;
+      sourceRef.current = source;
+    }
     if (audioRef.current?.src) {
       playAudio();
     }
@@ -152,7 +187,11 @@ export default function HostDisplayPage() {
 
     socket.emit(EVENTS.ROOM_JOIN, { roomCode, playerName: '__host_display__' });
 
-    return () => { socket.disconnect(); };
+    return () => {
+      socket.disconnect();
+      cancelAnimationFrame(animFrameRef.current);
+      audioCtxRef.current?.close();
+    };
   }, [roomCode]);
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -162,9 +201,9 @@ export default function HostDisplayPage() {
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
-        onPlay={() => setAudioPlaying(true)}
-        onPause={() => setAudioPlaying(false)}
-        onEnded={() => setAudioPlaying(false)}
+        onPlay={() => { setAudioPlaying(true); startAnalyser(); }}
+        onPause={() => { setAudioPlaying(false); stopAnalyser(); }}
+        onEnded={() => { setAudioPlaying(false); stopAnalyser(); }}
         style={{ display: 'none' }}
       />
 
@@ -240,21 +279,25 @@ export default function HostDisplayPage() {
           {/* Center */}
           <div className="flex-1 flex flex-col items-center justify-center px-8 gap-6">
             {!result ? (
-              <div className="text-center">
-                <div className="flex gap-2 justify-center items-end h-20 mb-4">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i} className="w-4 bg-brand-400 rounded-full animate-pulse-slow"
+              <div className="flex flex-col items-center gap-4 w-full max-w-2xl">
+                <div className="flex items-end justify-center gap-[3px] h-32 w-full px-4">
+                  {spectrumBars.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-full"
                       style={{
-                        height: `${Math.sin(i * 0.7) * 40 + 60}%`,
-                        animationDelay: `${i * 0.12}s`,
-                        animationDuration: `${0.8 + (i % 3) * 0.3}s`,
-                      }} />
+                        height: `${Math.max(h, audioPlaying ? 4 : 2)}%`,
+                        background: `hsl(${270 + i * 2}, 80%, ${50 + h * 0.2}%)`,
+                        opacity: audioPlaying ? 0.85 + h * 0.0015 : 0.3,
+                        transition: 'height 60ms linear',
+                      }}
+                    />
                   ))}
                 </div>
-                <p className="text-3xl font-bold text-brand-100">
-                  {audioPlaying ? '🔊 Now Playing' : '🎵 Song ready'}
+                <p className="text-2xl font-bold text-brand-100">
+                  {audioPlaying ? 'Now Playing' : 'Song ready'}
                 </p>
-                <p className="text-xl text-brand-100/70 mt-1">
+                <p className="text-lg text-brand-100/70">
                   {turn.activePlayerName} is placing the song on their timeline
                 </p>
               </div>

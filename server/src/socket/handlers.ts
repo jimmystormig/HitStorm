@@ -19,9 +19,10 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
 
     // ─── Room management ─────────────────────────────────────────────────────
 
-    socket.on(EVENTS.ROOM_CREATE, ({ playerName, gameMode } = {}) => {
+    socket.on(EVENTS.ROOM_CREATE, ({ playerName, gameMode, winScore } = {}) => {
       if (!playerName?.trim()) return emit(EVENTS.ROOM_ERROR, { message: 'Name required' });
-      const room = rooms.createRoom(socket.id, playerName, gameMode ?? 'classic');
+      const ws = typeof winScore === 'number' && winScore >= 5 && winScore <= 50 ? winScore : 10;
+      const room = rooms.createRoom(socket.id, playerName, gameMode ?? 'classic', ws);
       socket.join(room.code);
       const ip = getLocalIP();
       emit(EVENTS.ROOM_CREATED, {
@@ -246,7 +247,9 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
           activePlayerTimeline,
           // title and artist intentionally omitted
         });
-        broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_OPEN, {});
+        const currentSong = engine.getCurrentSong(room)!;
+        const atChoices = engine.generateArtistTitleChoices(currentSong, room.shuffledSongs);
+        broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_OPEN, atChoices);
 
         room.artistTitleTimer = setTimeout(() => {
           if (room.phase === 'placing') {
@@ -270,7 +273,8 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       } else if (room.settings.gameMode === 'pro' && !result.correct) {
         // Pro mode + wrong placement: broadcast full result and open buzz window for artist steal
         broadcast(room.code, EVENTS.GAME_RESULT, { ...result, activePlayerTimeline });
-        broadcast(room.code, EVENTS.GAME_BUZZ_OPEN, { buzzingPlayerId: null });
+        const buzzChoices = engine.generateBuzzChoices(engine.getCurrentSong(room)!, room.shuffledSongs);
+        broadcast(room.code, EVENTS.GAME_BUZZ_OPEN, { buzzingPlayerId: null, artistChoices: buzzChoices });
         room.buzzTimer = setTimeout(() => {
           if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
         }, BUZZ_WINDOW_MS);
@@ -293,9 +297,12 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
 
       room.buzzPlayerId = socket.id;
       const buzzer = room.players.get(socket.id);
+      const buzzSong = engine.getCurrentSong(room);
+      const buzzArtistChoices = buzzSong ? engine.generateBuzzChoices(buzzSong, room.shuffledSongs) : [];
       broadcast(room.code, EVENTS.GAME_BUZZ_OPEN, {
         buzzingPlayerId: socket.id,
         buzzingPlayerName: buzzer?.name,
+        artistChoices: buzzArtistChoices,
       });
 
       // Give buzzer 8 seconds to guess

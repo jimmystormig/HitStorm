@@ -1,5 +1,5 @@
 import type { Room, Player } from './types.js';
-import type { Song, PlayerScore, PlacementResult } from '../../../src/types/index.js';
+import type { Song, PlayerScore, PlacementResult, ArtistTitleChoices } from '../../../src/types/index.js';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -135,6 +135,34 @@ export class GameEngine {
     const song = this.getCurrentSong(room);
     if (!song) return false;
     return this.normalizeTitle(guess) === this.normalizeTitle(song.title);
+  }
+
+  generateArtistTitleChoices(song: Song, allSongs: Song[]): ArtistTitleChoices {
+    const wrongArtists = song.wrongArtists && song.wrongArtists.length >= 2
+      ? song.wrongArtists.slice(0, 2)
+      : this.pickRandomDistractors(song.artist, allSongs.map(s => s.artist), 2);
+    const wrongTitles = song.wrongTitles && song.wrongTitles.length >= 2
+      ? song.wrongTitles.slice(0, 2)
+      : this.pickRandomDistractors(song.title, allSongs.map(s => s.title), 2);
+
+    return {
+      artistChoices: shuffle([song.artist, ...wrongArtists]),
+      titleChoices: shuffle([song.title, ...wrongTitles]),
+    };
+  }
+
+  generateBuzzChoices(song: Song, allSongs: Song[]): string[] {
+    const wrongArtists = song.wrongArtists && song.wrongArtists.length >= 2
+      ? song.wrongArtists.slice(0, 2)
+      : this.pickRandomDistractors(song.artist, allSongs.map(s => s.artist), 2);
+
+    return shuffle([song.artist, ...wrongArtists]);
+  }
+
+  private pickRandomDistractors(correct: string, pool: string[], count: number): string[] {
+    const unique = [...new Set(pool)].filter(x => x !== correct);
+    const shuffled = shuffle(unique);
+    return shuffled.slice(0, count);
   }
 
   applyArtistTitleBonus(room: Room, playerId: string, artistCorrect: boolean, titleCorrect: boolean): void {
