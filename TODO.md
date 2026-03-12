@@ -5,7 +5,6 @@
 - Knappen för att att sno syns väldigt kort tid
 - När man snor syns låttiteln och artisten
 - När man snott ett kort laddas inte det in bland övriga kort
-- Om man spelsidan återansluter när det är ens tur börjar timern innan man har valt årtal
 
 ## Nya funktioner
 

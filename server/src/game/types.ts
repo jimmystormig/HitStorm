@@ -30,6 +30,7 @@ export interface Room {
   buzzPlayerId: string | null;
   buzzTimer: ReturnType<typeof setTimeout> | null;
   artistTitleTimer: ReturnType<typeof setTimeout> | null;
+  artistTitleChoices: { artistChoices: string[]; titleChoices: string[] } | null;
   placingResult: PlacingResult | null;
 }
 

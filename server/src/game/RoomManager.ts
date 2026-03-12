@@ -37,6 +37,7 @@ export class RoomManager {
       buzzPlayerId: null,
       buzzTimer: null,
       artistTitleTimer: null,
+      artistTitleChoices: null,
       placingResult: null,
     };
 

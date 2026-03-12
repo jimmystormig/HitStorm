@@ -23,7 +23,7 @@ export class YtDlpService {
         [
           '--get-url',
           '-f', 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
-          '--cookies-from-browser', 'chrome',
+          '--extractor-args', 'youtube:player_client=tv_embedded',
           '--no-playlist',
           '--no-warnings',
           `https://music.youtube.com/watch?v=${videoId}`,

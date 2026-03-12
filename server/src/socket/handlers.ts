@@ -149,6 +149,11 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
               placingPlayerId: joinedRoom.placingResult.placingPlayerId,
             } : null,
           });
+
+          // Re-open artist/title guessing window if still active
+          if (joinedRoom.artistTitleTimer && joinedRoom.artistTitleChoices) {
+            emit(EVENTS.GAME_ARTIST_TITLE_OPEN, joinedRoom.artistTitleChoices);
+          }
         }
 
         broadcast(joinedRoom.code, EVENTS.ROOM_UPDATED, {
@@ -249,6 +254,7 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
         });
         const currentSong = engine.getCurrentSong(room)!;
         const atChoices = engine.generateArtistTitleChoices(currentSong, room.shuffledSongs);
+        room.artistTitleChoices = atChoices;
         broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_OPEN, atChoices);
 
         room.artistTitleTimer = setTimeout(() => {
@@ -394,6 +400,7 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       room.buzzPlayerId = null;
       if (room.buzzTimer) { clearTimeout(room.buzzTimer); room.buzzTimer = null; }
       if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
+      room.artistTitleChoices = null;
       room.placingResult = null;
       for (const p of room.players.values()) { p.score = 0; p.timeline = []; }
       broadcast(room.code, EVENTS.ROOM_UPDATED, {

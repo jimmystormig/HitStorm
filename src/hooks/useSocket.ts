@@ -180,6 +180,10 @@ export function useSocket() {
         buzzingPlayerName: null,
         iAmBuzzing: false,
         artistResult: null,
+        artistTitleOpen: false,
+        artistChoices: null,
+        titleChoices: null,
+        artistTitleResult: null,
       });
     });
 

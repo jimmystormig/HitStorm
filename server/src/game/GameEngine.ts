@@ -90,6 +90,7 @@ export class GameEngine {
     room.placingResult = null;
     if (room.buzzTimer) { clearTimeout(room.buzzTimer); room.buzzTimer = null; }
     if (room.artistTitleTimer) { clearTimeout(room.artistTitleTimer); room.artistTitleTimer = null; }
+    room.artistTitleChoices = null;
 
     if (room.currentSongIndex >= room.shuffledSongs.length) {
       room.phase = 'finished';
