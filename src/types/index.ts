@@ -87,8 +87,12 @@ export interface ArtistResult {
   buzzPlayerId: string;
   buzzPlayerName: string;
   stole: boolean; // stole the card from the active player
-  songTitle?: string;  // actual song title, revealed when buzz phase ends
-  songArtist?: string; // actual song artist, revealed when buzz phase ends
+  scores?: PlayerScore[];
+}
+
+export interface SongReveal {
+  songTitle: string;
+  songArtist: string;
 }
 
 export interface ArtistTitleResult {
@@ -137,6 +141,7 @@ export const EVENTS = {
   GAME_SYNC: 'game:sync',
   GAME_ARTIST_TITLE_OPEN: 'game:artistTitleOpen',
   GAME_ARTIST_TITLE_RESULT: 'game:artistTitleResult',
+  GAME_SONG_REVEAL: 'game:songReveal',
 } as const;
 
 export type EventName = (typeof EVENTS)[keyof typeof EVENTS];

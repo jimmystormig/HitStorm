@@ -84,7 +84,7 @@ export default function GamePage() {
     connected,
     playerId, activePlayerId, activePlayerName,
     round, totalSongs, myTimeline,
-    lastResult, artistResult,
+    lastResult, artistResult, revealedSongTitle, revealedSongArtist,
     buzzingPlayerId, buzzingPlayerName, iAmBuzzing,
     gameMode, players, isHost,
     artistTitleOpen, artistTitleResult,
@@ -261,10 +261,10 @@ export default function GamePage() {
               </div>
             </>
           ) : artistTitleOpen ? null
-          : artistResult?.songTitle ? (
+          : revealedSongTitle ? (
             <>
-              <p className="text-white font-semibold">{artistResult.songTitle}</p>
-              <p className="text-white/70 text-sm">{artistResult.songArtist}</p>
+              <p className="text-white font-semibold">{revealedSongTitle}</p>
+              <p className="text-white/70 text-sm">{revealedSongArtist}</p>
             </>
           ) : lastResult.title !== undefined ? (
             <>

@@ -234,6 +234,10 @@ export function useSocket() {
       useGameStore.getState().setArtistResult(result);
     });
 
+    socket.on(EVENTS.GAME_SONG_REVEAL, ({ songTitle, songArtist }: { songTitle: string; songArtist: string }) => {
+      useGameStore.getState().setSongReveal(songTitle, songArtist);
+    });
+
     socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, ({ artistChoices, titleChoices }) => {
       useGameStore.getState().setArtistTitleOpen(true, artistChoices, titleChoices);
     });

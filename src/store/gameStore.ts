@@ -29,6 +29,8 @@ interface GameStore {
   // Results
   lastResult: PlacementResult | null;
   artistResult: ArtistResult | null;
+  revealedSongTitle: string | null;
+  revealedSongArtist: string | null;
   finalScores: PlayerScore[];
   winner: { id: string; name: string; score: number } | null;
 
@@ -52,6 +54,7 @@ interface GameStore {
   setLastResult: (r: PlacementResult | null) => void;
   setBuzzOpen: (buzzingPlayerId: string | null, buzzingPlayerName: string | null, artistChoices?: string[]) => void;
   setArtistResult: (r: ArtistResult | null) => void;
+  setSongReveal: (title: string, artist: string) => void;
   setArtistTitleOpen: (open: boolean, artistChoices?: string[], titleChoices?: string[]) => void;
   setArtistTitleResult: (r: ArtistTitleResult) => void;
   setGameOver: (winner: GameStore['winner'], scores: PlayerScore[]) => void;
@@ -80,6 +83,8 @@ const initial = {
   myTimeline: [],
   lastResult: null,
   artistResult: null,
+  revealedSongTitle: null,
+  revealedSongArtist: null,
   finalScores: [],
   winner: null,
   buzzingPlayerId: null,
@@ -115,6 +120,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       phase: 'playing',
       lastResult: null,
       artistResult: null,
+      revealedSongTitle: null,
+      revealedSongArtist: null,
       buzzingPlayerId: null,
       buzzingPlayerName: null,
       iAmBuzzing: false,
@@ -154,6 +161,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       iAmBuzzing: buzzingPlayerId === get().playerId,
       artistChoices: artistChoices ?? get().artistChoices,
     }),
+
+  setSongReveal: (title, artist) => set({ revealedSongTitle: title, revealedSongArtist: artist }),
 
   setArtistResult: (r) => {
     set({ artistResult: r });

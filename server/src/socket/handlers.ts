@@ -338,15 +338,13 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
       // Give buzzer 8 seconds to guess
       room.buzzTimer = setTimeout(() => {
         if (room.phase === 'placing') {
-          const timedOutSong = engine.getCurrentSong(room);
           broadcast(room.code, EVENTS.GAME_ARTIST_RESULT, {
             correct: false,
             artist: '',
             buzzPlayerId: socket.id,
             buzzPlayerName: buzzer?.name,
             stole: false,
-            songTitle: timedOutSong?.title,
-            songArtist: timedOutSong?.artist,
+            scores: engine.getScores(room),
           });
           finishTurn(io, rooms, engine, room.code);
         }
@@ -366,7 +364,6 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
         stole = didSteal;
       }
 
-      const guessedSong = engine.getCurrentSong(room);
       broadcast(room.code, EVENTS.GAME_ARTIST_RESULT, {
         correct,
         artist: artist ?? '',
@@ -374,12 +371,17 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
         buzzPlayerName: buzzer?.name,
         stole,
         scores: engine.getScores(room),
-        songTitle: guessedSong?.title,
-        songArtist: guessedSong?.artist,
       });
 
       setTimeout(() => {
-        if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
+        if (room.phase === 'placing') {
+          const revealSong = engine.getCurrentSong(room);
+          broadcast(room.code, EVENTS.GAME_SONG_REVEAL, {
+            songTitle: revealSong?.title ?? '',
+            songArtist: revealSong?.artist ?? '',
+          });
+          finishTurn(io, rooms, engine, room.code);
+        }
       }, REVEAL_DURATION_MS);
     });
 

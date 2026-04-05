@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import { QRCodeSVG } from 'qrcode.react';
 import { EVENTS } from '../types';
-import type { PlayerInfo, PlayerScore, PlacementResult, ArtistTitleResult } from '../types';
+import type { PlayerInfo, PlayerScore, PlacementResult, ArtistTitleResult, SongReveal } from '../types';
 
 type Phase = 'lobby' | 'playing' | 'placing' | 'finished';
 
@@ -54,6 +54,8 @@ export default function HostDisplayPage() {
   const [needsInteraction, setNeedsInteraction] = useState(true);
   const [artistTitleOpen, setArtistTitleOpen] = useState(false);
   const [artistTitleResult, setArtistTitleResultState] = useState<ArtistTitleResult | null>(null);
+  const [revealedTitle, setRevealedTitle] = useState<string | null>(null);
+  const [revealedArtist, setRevealedArtist] = useState<string | null>(null);
   const [spectrumBars, setSpectrumBars] = useState<number[]>(Array(40).fill(0));
 
   const startAnalyser = () => {
@@ -133,6 +135,8 @@ export default function HostDisplayPage() {
       setBuzzingPlayer(null);
       setArtistTitleOpen(false);
       setArtistTitleResultState(null);
+      setRevealedTitle(null);
+      setRevealedArtist(null);
       setPhase('playing');
 
       if (audioRef.current) {
@@ -159,6 +163,11 @@ export default function HostDisplayPage() {
     socket.on(EVENTS.GAME_ARTIST_RESULT, (r: ArtistResultData) => {
       setArtistResult(r);
       if (r.scores) setScores(r.scores);
+    });
+
+    socket.on(EVENTS.GAME_SONG_REVEAL, ({ songTitle, songArtist }: SongReveal) => {
+      setRevealedTitle(songTitle);
+      setRevealedArtist(songArtist);
     });
 
     socket.on(EVENTS.GAME_ARTIST_TITLE_OPEN, () => {
@@ -329,10 +338,10 @@ export default function HostDisplayPage() {
                       {turn?.activePlayerName} is guessing the artist and title... 🎤
                     </p>
                   </div>
-                ) : artistResult?.songTitle ? (
+                ) : revealedTitle ? (
                   <>
-                    <p className="text-3xl font-bold">{artistResult.songTitle}</p>
-                    <p className="text-xl text-brand-100 mt-1">{artistResult.songArtist}</p>
+                    <p className="text-3xl font-bold">{revealedTitle}</p>
+                    <p className="text-xl text-brand-100 mt-1">{revealedArtist}</p>
                   </>
                 ) : result.title !== undefined ? (
                   <>
