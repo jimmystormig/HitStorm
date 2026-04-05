@@ -87,6 +87,8 @@ export interface ArtistResult {
   buzzPlayerId: string;
   buzzPlayerName: string;
   stole: boolean; // stole the card from the active player
+  songTitle?: string;  // actual song title, revealed when buzz phase ends
+  songArtist?: string; // actual song artist, revealed when buzz phase ends
 }
 
 export interface ArtistTitleResult {

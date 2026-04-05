@@ -243,7 +243,7 @@ export default function GamePage() {
             <span className="text-white font-bold text-lg">{lastResult.year}</span>
             {isMyTurn && <span className="text-white/70 text-sm">{lastResult.correct ? 'Correct!' : 'Wrong placement'}</span>}
           </div>
-          {/* In Pro mode, title/artist are hidden until the artist+title guessing phase completes */}
+          {/* In Pro mode, title/artist are hidden until the guessing phase completes */}
           {artistTitleResult ? (
             <>
               <p className="text-white font-semibold">{artistTitleResult.title}</p>
@@ -259,6 +259,12 @@ export default function GamePage() {
                   <span className="text-xs bg-white/10 text-white/50 px-2 py-0.5 rounded-full">No bonus this round</span>
                 )}
               </div>
+            </>
+          ) : artistTitleOpen ? null
+          : artistResult?.songTitle ? (
+            <>
+              <p className="text-white font-semibold">{artistResult.songTitle}</p>
+              <p className="text-white/70 text-sm">{artistResult.songArtist}</p>
             </>
           ) : lastResult.title !== undefined ? (
             <>

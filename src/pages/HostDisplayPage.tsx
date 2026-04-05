@@ -309,7 +309,7 @@ export default function HostDisplayPage() {
                 </p>
                 <p className="text-7xl font-bold mb-2">{result.year}</p>
 
-                {/* Show title/artist: hidden during artist+title guessing phase, revealed after */}
+                {/* Show title/artist: hidden during guessing phases, revealed after */}
                 {artistTitleResult ? (
                   <>
                     <p className="text-3xl font-bold">{artistTitleResult.title}</p>
@@ -329,6 +329,11 @@ export default function HostDisplayPage() {
                       {turn?.activePlayerName} is guessing the artist and title... 🎤
                     </p>
                   </div>
+                ) : artistResult?.songTitle ? (
+                  <>
+                    <p className="text-3xl font-bold">{artistResult.songTitle}</p>
+                    <p className="text-xl text-brand-100 mt-1">{artistResult.songArtist}</p>
+                  </>
                 ) : result.title !== undefined ? (
                   <>
                     <p className="text-3xl font-bold">{result.title}</p>
@@ -366,19 +371,24 @@ export default function HostDisplayPage() {
                     <span>Empty — first card is free!</span>
                   </div>
                 ) : (
-                  activeTimeline.map((card, i) => (
+                  activeTimeline.map((card, i) => {
+                    // Hide title of the just-placed card while artist+title guessing is active
+                    const isNewCard = result?.correct && i === activeTimeline.length - 1;
+                    const hideTitle = isNewCard && (artistTitleOpen || (!artistTitleResult && !result?.title));
+                    return (
                     <div key={i} className="flex items-center gap-1 flex-shrink-0">
                       <div className={`rounded-xl px-3 py-2 text-center flex-shrink-0 ${
                         result && !result.correct && i === activeTimeline.length - 1 ? 'bg-brand-700/60' : 'bg-white text-brand-900'
                       }`}>
                         <p className="font-bold text-xl leading-none">{card.year}</p>
-                        <p className="text-xs mt-0.5 max-w-[80px] truncate opacity-70">{card.title}</p>
+                        <p className="text-xs mt-0.5 max-w-[80px] truncate opacity-70">{hideTitle ? '?' : card.title}</p>
                       </div>
                       {i < activeTimeline.length - 1 && (
                         <span className="text-brand-400 text-sm">›</span>
                       )}
                     </div>
-                  ))
+                  );
+                  })
                 )}
               </div>
             </div>
