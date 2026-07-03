@@ -1,0 +1,742 @@
+{
+  "id": "mest-spelade-sverige",
+  "name": "Mest spelade i Sverige 1978–2026",
+  "description": "De mest spelade låtarna i Sverige varje år, 1978–2026",
+  "songs": [
+    {
+      "id": "msv-1978",
+      "title": "It's a Heartache",
+      "artist": "Bonnie Tyler",
+      "year": 1978,
+      "videoId": "zjloI8jfXJM",
+      "wrongArtists": [
+        "Vikingarna",
+        "Johnny Logan"
+      ],
+      "wrongTitles": [
+        "Djingis Khan",
+        "What's Another Year"
+      ]
+    },
+    {
+      "id": "msv-1979",
+      "title": "Djingis Khan",
+      "artist": "Vikingarna",
+      "year": 1979,
+      "videoId": "4oPGi28oFZ8",
+      "wrongArtists": [
+        "Bonnie Tyler",
+        "Johnny Logan"
+      ],
+      "wrongTitles": [
+        "It's a Heartache",
+        "What's Another Year"
+      ]
+    },
+    {
+      "id": "msv-1980",
+      "title": "What's Another Year",
+      "artist": "Johnny Logan",
+      "year": 1980,
+      "videoId": "R_hb6emsjHk",
+      "wrongArtists": [
+        "Vikingarna",
+        "Caramba"
+      ],
+      "wrongTitles": [
+        "Djingis Khan",
+        "Hubba Hubba Zoot-Zoot"
+      ]
+    },
+    {
+      "id": "msv-1981",
+      "title": "Hubba Hubba Zoot-Zoot",
+      "artist": "Caramba",
+      "year": 1981,
+      "videoId": "bd2qsC-PuJQ",
+      "wrongArtists": [
+        "Johnny Logan",
+        "Ebba Grön"
+      ],
+      "wrongTitles": [
+        "What's Another Year",
+        "Die Mauer"
+      ]
+    },
+    {
+      "id": "msv-1982",
+      "title": "Die Mauer",
+      "artist": "Ebba Grön",
+      "year": 1982,
+      "videoId": "ZgSKhxgEJDg",
+      "wrongArtists": [
+        "Caramba",
+        "Carola"
+      ],
+      "wrongTitles": [
+        "Hubba Hubba Zoot-Zoot",
+        "Främling"
+      ]
+    },
+    {
+      "id": "msv-1983",
+      "title": "Främling",
+      "artist": "Carola",
+      "year": 1983,
+      "videoId": "M_OH80MbsVw",
+      "wrongArtists": [
+        "Ebba Grön",
+        "Stevie Wonder"
+      ],
+      "wrongTitles": [
+        "Die Mauer",
+        "I Just Called to Say I Love You"
+      ]
+    },
+    {
+      "id": "msv-1984",
+      "title": "I Just Called to Say I Love You",
+      "artist": "Stevie Wonder",
+      "year": 1984,
+      "videoId": "58RgLQ_0Ars",
+      "wrongArtists": [
+        "Carola",
+        "USA for Africa"
+      ],
+      "wrongTitles": [
+        "Främling",
+        "We Are the World"
+      ]
+    },
+    {
+      "id": "msv-1985",
+      "title": "We Are the World",
+      "artist": "USA for Africa",
+      "year": 1985,
+      "videoId": "pp2mlxsxOes",
+      "wrongArtists": [
+        "Stevie Wonder",
+        "Europe"
+      ],
+      "wrongTitles": [
+        "I Just Called to Say I Love You",
+        "The Final Countdown"
+      ]
+    },
+    {
+      "id": "msv-1986",
+      "title": "The Final Countdown",
+      "artist": "Europe",
+      "year": 1986,
+      "videoId": "4hj8M8XZpis",
+      "wrongArtists": [
+        "USA for Africa",
+        "Rick Astley"
+      ],
+      "wrongTitles": [
+        "We Are the World",
+        "Never Gonna Give You Up"
+      ]
+    },
+    {
+      "id": "msv-1987",
+      "title": "Never Gonna Give You Up",
+      "artist": "Rick Astley",
+      "year": 1987,
+      "videoId": "3BFTio5296w",
+      "wrongArtists": [
+        "Europe",
+        "Roxette"
+      ],
+      "wrongTitles": [
+        "The Final Countdown",
+        "The Look"
+      ]
+    },
+    {
+      "id": "msv-1988",
+      "title": "The Look",
+      "artist": "Roxette",
+      "year": 1988,
+      "videoId": "LlVI7ZNiFlI",
+      "wrongArtists": [
+        "Rick Astley",
+        "The Bangles"
+      ],
+      "wrongTitles": [
+        "Never Gonna Give You Up",
+        "Eternal Flame"
+      ]
+    },
+    {
+      "id": "msv-1989",
+      "title": "Eternal Flame",
+      "artist": "The Bangles",
+      "year": 1989,
+      "videoId": "wlZqSCrNmtg",
+      "wrongArtists": [
+        "Roxette",
+        "Sinéad O'Connor"
+      ],
+      "wrongTitles": [
+        "The Look",
+        "Nothing Compares 2 U"
+      ]
+    },
+    {
+      "id": "msv-1990",
+      "title": "Nothing Compares 2 U",
+      "artist": "Sinéad O'Connor",
+      "year": 1990,
+      "videoId": "Ouf9-bOqJVk",
+      "wrongArtists": [
+        "The Bangles",
+        "Roxette"
+      ],
+      "wrongTitles": [
+        "Eternal Flame",
+        "Joyride"
+      ]
+    },
+    {
+      "id": "msv-1991",
+      "title": "Joyride",
+      "artist": "Roxette",
+      "year": 1991,
+      "videoId": "IRKhHBaM3_k",
+      "wrongArtists": [
+        "Sinéad O'Connor",
+        "Mr. Big"
+      ],
+      "wrongTitles": [
+        "Nothing Compares 2 U",
+        "To Be With You"
+      ]
+    },
+    {
+      "id": "msv-1992",
+      "title": "To Be With You",
+      "artist": "Mr. Big",
+      "year": 1992,
+      "videoId": "ivtSA0-fbcg",
+      "wrongArtists": [
+        "Roxette",
+        "Ace of Base"
+      ],
+      "wrongTitles": [
+        "Joyride",
+        "All That She Wants"
+      ]
+    },
+    {
+      "id": "msv-1993",
+      "title": "All That She Wants",
+      "artist": "Ace of Base",
+      "year": 1993,
+      "videoId": "d73tiBBzvFM",
+      "wrongArtists": [
+        "Mr. Big",
+        "GES"
+      ],
+      "wrongTitles": [
+        "To Be With You",
+        "När vi gräver guld i USA"
+      ]
+    },
+    {
+      "id": "msv-1994",
+      "title": "När vi gräver guld i USA",
+      "artist": "GES",
+      "year": 1994,
+      "videoId": "7G-SO10WMFI",
+      "wrongArtists": [
+        "Ace of Base",
+        "Coolio"
+      ],
+      "wrongTitles": [
+        "All That She Wants",
+        "Gangsta's Paradise"
+      ]
+    },
+    {
+      "id": "msv-1995",
+      "title": "Gangsta's Paradise",
+      "artist": "Coolio",
+      "year": 1995,
+      "videoId": "7DXlY8LhWnI",
+      "wrongArtists": [
+        "GES",
+        "Babylon Zoo"
+      ],
+      "wrongTitles": [
+        "När vi gräver guld i USA",
+        "Spaceman"
+      ]
+    },
+    {
+      "id": "msv-1996",
+      "title": "Spaceman",
+      "artist": "Babylon Zoo",
+      "year": 1996,
+      "videoId": "EG4NP8bldJg",
+      "wrongArtists": [
+        "Coolio",
+        "Elton John"
+      ],
+      "wrongTitles": [
+        "Gangsta's Paradise",
+        "Candle in the Wind 1997"
+      ]
+    },
+    {
+      "id": "msv-1997",
+      "title": "Candle in the Wind 1997",
+      "artist": "Elton John",
+      "year": 1997,
+      "videoId": "sxb0GeS4gL8",
+      "wrongArtists": [
+        "Babylon Zoo",
+        "Celine Dion"
+      ],
+      "wrongTitles": [
+        "Spaceman",
+        "My Heart Will Go On"
+      ]
+    },
+    {
+      "id": "msv-1998",
+      "title": "My Heart Will Go On",
+      "artist": "Celine Dion",
+      "year": 1998,
+      "videoId": "mNsm2P0l_7Y",
+      "wrongArtists": [
+        "Elton John",
+        "Lou Bega"
+      ],
+      "wrongTitles": [
+        "Candle in the Wind 1997",
+        "Mambo No. 5"
+      ]
+    },
+    {
+      "id": "msv-1999",
+      "title": "Mambo No. 5",
+      "artist": "Lou Bega",
+      "year": 1999,
+      "videoId": "EK_LN3XEcnw",
+      "wrongArtists": [
+        "Celine Dion",
+        "Bomfunk MC's"
+      ],
+      "wrongTitles": [
+        "My Heart Will Go On",
+        "Freestyler"
+      ]
+    },
+    {
+      "id": "msv-2000",
+      "title": "Freestyler",
+      "artist": "Bomfunk MC's",
+      "year": 2000,
+      "videoId": "ymNFyxvIdaM",
+      "wrongArtists": [
+        "Lou Bega",
+        "Kylie Minogue"
+      ],
+      "wrongTitles": [
+        "Mambo No. 5",
+        "Can't Get You Out of My Head"
+      ]
+    },
+    {
+      "id": "msv-2001",
+      "title": "Can't Get You Out of My Head",
+      "artist": "Kylie Minogue",
+      "year": 2001,
+      "videoId": "c18441Eh_WE",
+      "wrongArtists": [
+        "Bomfunk MC's",
+        "Las Ketchup"
+      ],
+      "wrongTitles": [
+        "Freestyler",
+        "The Ketchup Song (Aserejé)"
+      ]
+    },
+    {
+      "id": "msv-2002",
+      "title": "The Ketchup Song (Aserejé)",
+      "artist": "Las Ketchup",
+      "year": 2002,
+      "videoId": "hLeUL4i9PNw",
+      "wrongArtists": [
+        "Kylie Minogue",
+        "Outkast"
+      ],
+      "wrongTitles": [
+        "Can't Get You Out of My Head",
+        "Hey Ya!"
+      ]
+    },
+    {
+      "id": "msv-2003",
+      "title": "Hey Ya!",
+      "artist": "Outkast",
+      "year": 2003,
+      "videoId": "JzqYDWBkX_Q",
+      "wrongArtists": [
+        "Las Ketchup",
+        "Nic & the Family"
+      ],
+      "wrongTitles": [
+        "The Ketchup Song (Aserejé)",
+        "Hej Hej Monika"
+      ]
+    },
+    {
+      "id": "msv-2004",
+      "title": "Hej Hej Monika",
+      "artist": "Nic & the Family",
+      "year": 2004,
+      "videoId": "KZUnOHcLN0k",
+      "wrongArtists": [
+        "Outkast",
+        "Crazy Frog"
+      ],
+      "wrongTitles": [
+        "Hey Ya!",
+        "Crazy"
+      ]
+    },
+    {
+      "id": "msv-2005",
+      "title": "Crazy",
+      "artist": "Crazy Frog",
+      "year": 2005,
+      "videoId": "Y8d86tUxNf8",
+      "wrongArtists": [
+        "Nic & the Family",
+        "Basshunter"
+      ],
+      "wrongTitles": [
+        "Hej Hej Monika",
+        "Boten Anna"
+      ]
+    },
+    {
+      "id": "msv-2006",
+      "title": "Boten Anna",
+      "artist": "Basshunter",
+      "year": 2006,
+      "videoId": "vpYz3yeXapc",
+      "wrongArtists": [
+        "Crazy Frog",
+        "Rihanna feat. Jay-Z"
+      ],
+      "wrongTitles": [
+        "Crazy",
+        "Umbrella"
+      ]
+    },
+    {
+      "id": "msv-2007",
+      "title": "Umbrella",
+      "artist": "Rihanna feat. Jay-Z",
+      "year": 2007,
+      "videoId": "EPtrQpx9VDw",
+      "wrongArtists": [
+        "Basshunter",
+        "Robyn"
+      ],
+      "wrongTitles": [
+        "Boten Anna",
+        "With Every Heartbeat"
+      ]
+    },
+    {
+      "id": "msv-2008",
+      "title": "With Every Heartbeat",
+      "artist": "Robyn",
+      "year": 2008,
+      "videoId": "-ojHWQrm4UM",
+      "wrongArtists": [
+        "Rihanna feat. Jay-Z",
+        "Alexander Rybak"
+      ],
+      "wrongTitles": [
+        "Umbrella",
+        "Fairytale"
+      ]
+    },
+    {
+      "id": "msv-2009",
+      "title": "Fairytale",
+      "artist": "Alexander Rybak",
+      "year": 2009,
+      "videoId": "1rVY08gRGmA",
+      "wrongArtists": [
+        "Robyn",
+        "Daniel Adams-Ray"
+      ],
+      "wrongTitles": [
+        "With Every Heartbeat",
+        "Gubben i lådan"
+      ]
+    },
+    {
+      "id": "msv-2010",
+      "title": "Gubben i lådan",
+      "artist": "Daniel Adams-Ray",
+      "year": 2010,
+      "videoId": "71PrWLvO7Z8",
+      "wrongArtists": [
+        "Alexander Rybak",
+        "Veronica Maggio"
+      ],
+      "wrongTitles": [
+        "Fairytale",
+        "Jag kommer"
+      ]
+    },
+    {
+      "id": "msv-2011",
+      "title": "Jag kommer",
+      "artist": "Veronica Maggio",
+      "year": 2011,
+      "videoId": "y497IokGAp0",
+      "wrongArtists": [
+        "Daniel Adams-Ray",
+        "Loreen"
+      ],
+      "wrongTitles": [
+        "Gubben i lådan",
+        "Euphoria"
+      ]
+    },
+    {
+      "id": "msv-2012",
+      "title": "Euphoria",
+      "artist": "Loreen",
+      "year": 2012,
+      "videoId": "t5qURKt4maw",
+      "wrongArtists": [
+        "Veronica Maggio",
+        "Avicii"
+      ],
+      "wrongTitles": [
+        "Jag kommer",
+        "Wake Me Up"
+      ]
+    },
+    {
+      "id": "msv-2013",
+      "title": "Wake Me Up",
+      "artist": "Avicii",
+      "year": 2013,
+      "videoId": "5y_KJAg8bHI",
+      "wrongArtists": [
+        "Loreen",
+        "Magic!"
+      ],
+      "wrongTitles": [
+        "Euphoria",
+        "Rude"
+      ]
+    },
+    {
+      "id": "msv-2014",
+      "title": "Rude",
+      "artist": "Magic!",
+      "year": 2014,
+      "videoId": "8bCv2lmWpAw",
+      "wrongArtists": [
+        "Avicii",
+        "Major Lazer & DJ Snake feat. MØ"
+      ],
+      "wrongTitles": [
+        "Wake Me Up",
+        "Lean On"
+      ]
+    },
+    {
+      "id": "msv-2015",
+      "title": "Lean On",
+      "artist": "Major Lazer & DJ Snake feat. MØ",
+      "year": 2015,
+      "videoId": "rn9AQoI7mYU",
+      "wrongArtists": [
+        "Magic!",
+        "Sia"
+      ],
+      "wrongTitles": [
+        "Rude",
+        "Cheap Thrills"
+      ]
+    },
+    {
+      "id": "msv-2016",
+      "title": "Cheap Thrills",
+      "artist": "Sia",
+      "year": 2016,
+      "videoId": "J1b22l1kFKY",
+      "wrongArtists": [
+        "Major Lazer & DJ Snake feat. MØ",
+        "Ed Sheeran"
+      ],
+      "wrongTitles": [
+        "Lean On",
+        "Shape of You"
+      ]
+    },
+    {
+      "id": "msv-2017",
+      "title": "Shape of You",
+      "artist": "Ed Sheeran",
+      "year": 2017,
+      "videoId": "_dK2tDK9grQ",
+      "wrongArtists": [
+        "Sia",
+        "Avicii feat. Sandro Cavazza"
+      ],
+      "wrongTitles": [
+        "Cheap Thrills",
+        "Without You"
+      ]
+    },
+    {
+      "id": "msv-2018",
+      "title": "Without You",
+      "artist": "Avicii feat. Sandro Cavazza",
+      "year": 2018,
+      "videoId": "WRz2MxhAdJo",
+      "wrongArtists": [
+        "Ed Sheeran",
+        "Avicii"
+      ],
+      "wrongTitles": [
+        "Shape of You",
+        "SOS"
+      ]
+    },
+    {
+      "id": "msv-2019",
+      "title": "SOS",
+      "artist": "Avicii",
+      "year": 2019,
+      "videoId": "u8tdT5pAE34",
+      "wrongArtists": [
+        "Avicii feat. Sandro Cavazza",
+        "Victor Leksell"
+      ],
+      "wrongTitles": [
+        "Without You",
+        "Svag"
+      ]
+    },
+    {
+      "id": "msv-2020",
+      "title": "Svag",
+      "artist": "Victor Leksell",
+      "year": 2020,
+      "videoId": "dSRZ_1ncRhQ",
+      "wrongArtists": [
+        "Avicii",
+        "Miriam Bryant & Victor Leksell"
+      ],
+      "wrongTitles": [
+        "SOS",
+        "Tystnar i luren"
+      ]
+    },
+    {
+      "id": "msv-2021",
+      "title": "Tystnar i luren",
+      "artist": "Miriam Bryant & Victor Leksell",
+      "year": 2021,
+      "videoId": "F5vK1bN8zmU",
+      "wrongArtists": [
+        "Victor Leksell",
+        "Bolaget"
+      ],
+      "wrongTitles": [
+        "Svag",
+        "Kan inte gå"
+      ]
+    },
+    {
+      "id": "msv-2022",
+      "title": "Kan inte gå",
+      "artist": "Bolaget",
+      "year": 2022,
+      "videoId": "MB1Lg9uBsRM",
+      "wrongArtists": [
+        "Miriam Bryant & Victor Leksell",
+        "Victor Leksell"
+      ],
+      "wrongTitles": [
+        "Tystnar i luren",
+        "Ikväll igen"
+      ]
+    },
+    {
+      "id": "msv-2023",
+      "title": "Ikväll igen",
+      "artist": "Bolaget",
+      "year": 2023,
+      "videoId": "lLw6VpcUpVE",
+      "wrongArtists": [
+        "Shaboozey",
+        "Miriam Bryant & Victor Leksell"
+      ],
+      "wrongTitles": [
+        "Kan inte gå",
+        "A Bar Song (Tipsy)"
+      ]
+    },
+    {
+      "id": "msv-2024",
+      "title": "A Bar Song (Tipsy)",
+      "artist": "Shaboozey",
+      "year": 2024,
+      "videoId": "nZjTtuNR3Og",
+      "wrongArtists": [
+        "Bolaget",
+        "KAJ"
+      ],
+      "wrongTitles": [
+        "Ikväll igen",
+        "Bara bada bastu"
+      ]
+    },
+    {
+      "id": "msv-2025",
+      "title": "Bara bada bastu",
+      "artist": "KAJ",
+      "year": 2025,
+      "videoId": "QOehBj0nCMU",
+      "wrongArtists": [
+        "Shaboozey",
+        "Thomas Stenström"
+      ],
+      "wrongTitles": [
+        "A Bar Song (Tipsy)",
+        "Leva för alltid"
+      ]
+    },
+    {
+      "id": "msv-2026",
+      "title": "Leva för alltid",
+      "artist": "Thomas Stenström",
+      "year": 2026,
+      "videoId": "U67Ahq4FUXQ",
+      "wrongArtists": [
+        "KAJ",
+        "Shaboozey"
+      ],
+      "wrongTitles": [
+        "Bara bada bastu",
+        "A Bar Song (Tipsy)"
+      ]
+    }
+  ]
+}
