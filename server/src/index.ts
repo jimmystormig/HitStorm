@@ -29,7 +29,7 @@ app.use(createApiRouter(playlists));
 
 if (existsSync(CLIENT_DIST)) {
   app.use(express.static(CLIENT_DIST));
-  app.get('*', (_req, res) => res.sendFile(join(CLIENT_DIST, 'index.html')));
+  app.use((_req, res) => res.sendFile(join(CLIENT_DIST, 'index.html')));
 }
 
 setupHandlers(io, rooms, playlists);
