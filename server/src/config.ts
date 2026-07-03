@@ -9,7 +9,8 @@ export const WIN_SCORE = 10;
 export const MAX_PLAYERS = 8;
 export const REVEAL_DURATION_MS = 5000;
 export const BUZZ_WINDOW_MS = 8000; // time for artist buzz after placement
-export const ARTIST_TITLE_WINDOW_MS = 15000; // time for active player to guess artist+title in Pro mode
+export const ARTIST_GUESS_WINDOW_MS = 30000; // time for active player to guess the artist in Pro mode
+export const TITLE_GUESS_WINDOW_MS = 30000; // time for active player to guess the title, once the artist is chosen
 
 export function getLocalIP(): string {
   const nets = networkInterfaces();

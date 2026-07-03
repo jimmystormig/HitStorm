@@ -1,12 +1,36 @@
 import type { Server, Socket } from 'socket.io';
 import { EVENTS } from '../../../src/types/index.js';
 import type { RoomManager } from '../game/RoomManager.js';
+import type { Room } from '../game/types.js';
 import { GameEngine } from '../game/GameEngine.js';
 import type { PlaylistLoader } from '../playlists/PlaylistLoader.js';
 import { ytdlp } from '../routes/stream.js';
-import { PORT, getLocalIP, BUZZ_WINDOW_MS, REVEAL_DURATION_MS, ARTIST_TITLE_WINDOW_MS } from '../config.js';
+import { PORT, getLocalIP, BUZZ_WINDOW_MS, REVEAL_DURATION_MS, ARTIST_GUESS_WINDOW_MS, TITLE_GUESS_WINDOW_MS } from '../config.js';
 
 const engine = new GameEngine();
+
+// Arms (or re-arms) the timeout for the active player's artist/title guess.
+// On expiry, reveals with no bonus and advances the turn.
+function armArtistTitleTimeout(io: Server, rooms: RoomManager, room: Room, activePlayerId: string, windowMs: number) {
+  room.artistTitleTimer = setTimeout(() => {
+    if (room.phase === 'placing') {
+      const song = engine.getCurrentSong(room);
+      io.to(room.code).emit(EVENTS.GAME_ARTIST_TITLE_RESULT, {
+        title: song?.title ?? '',
+        artist: song?.artist ?? '',
+        artistCorrect: false,
+        titleCorrect: false,
+        scores: Object.fromEntries(
+          Array.from(room.players.values()).map(p => [p.id, p.score])
+        ),
+        placingPlayerId: activePlayerId,
+      });
+      setTimeout(() => {
+        if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
+      }, REVEAL_DURATION_MS);
+    }
+  }, windowMs);
+}
 
 export function setupHandlers(io: Server, rooms: RoomManager, playlists: PlaylistLoader) {
   io.on('connection', (socket: Socket) => {
@@ -274,25 +298,7 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
         room.artistTitleChoices = atChoices;
         broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_OPEN, atChoices);
 
-        room.artistTitleTimer = setTimeout(() => {
-          if (room.phase === 'placing') {
-            // Time's up — reveal without bonus and advance
-            const song = engine.getCurrentSong(room);
-            broadcast(room.code, EVENTS.GAME_ARTIST_TITLE_RESULT, {
-              title: song?.title ?? '',
-              artist: song?.artist ?? '',
-              artistCorrect: false,
-              titleCorrect: false,
-              scores: Object.fromEntries(
-                Array.from(room.players.values()).map(p => [p.id, p.score])
-              ),
-              placingPlayerId: socket.id,
-            });
-            setTimeout(() => {
-              if (room.phase === 'placing') finishTurn(io, rooms, engine, room.code);
-            }, REVEAL_DURATION_MS);
-          }
-        }, ARTIST_TITLE_WINDOW_MS);
+        armArtistTitleTimeout(io, rooms, room, socket.id, ARTIST_GUESS_WINDOW_MS);
       } else if (room.settings.gameMode === 'pro' && !result.correct) {
         // Pro mode + wrong placement: hide title/artist until buzz phase ends, open buzz window
         broadcast(room.code, EVENTS.GAME_RESULT, {
@@ -383,6 +389,18 @@ export function setupHandlers(io: Server, rooms: RoomManager, playlists: Playlis
           finishTurn(io, rooms, engine, room.code);
         }
       }, REVEAL_DURATION_MS);
+    });
+
+    socket.on(EVENTS.GAME_ARTIST_TITLE_ARTIST_PICKED, () => {
+      const room = rooms.getBySocket(socket.id);
+      if (!room || room.phase !== 'placing' || room.settings.gameMode !== 'pro') return;
+      const currentPlayer = engine.getCurrentPlayer(room);
+      if (!currentPlayer || currentPlayer.id !== socket.id) return; // only the active player
+      if (!room.artistTitleTimer) return; // window already closed
+
+      // Artist chosen — give a fresh window to pick the title
+      clearTimeout(room.artistTitleTimer);
+      armArtistTitleTimeout(io, rooms, room, socket.id, TITLE_GUESS_WINDOW_MS);
     });
 
     socket.on(EVENTS.GAME_GUESS_ARTIST_TITLE, ({ artist, title } = {}) => {

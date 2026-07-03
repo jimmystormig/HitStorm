@@ -127,6 +127,7 @@ export const EVENTS = {
   GAME_NEXT: 'game:next',
   GAME_PLAY_AGAIN: 'game:playAgain',
   GAME_GUESS_ARTIST_TITLE: 'game:guessArtistTitle',
+  GAME_ARTIST_TITLE_ARTIST_PICKED: 'game:artistTitleArtistPicked',
 
   // Server -> Client
   ROOM_CREATED: 'room:created',

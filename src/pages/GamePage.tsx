@@ -91,10 +91,12 @@ export default function GamePage() {
     artistChoices, titleChoices,
   } = useGameStore();
 
+  const ARTIST_TITLE_SECONDS = 30;
+
   const [selectedArtist, setSelectedArtist] = useState<string | null>(null);
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [buzzTimeout, setBuzzTimeout] = useState(false);
-  const [artistTitleCountdown, setArtistTitleCountdown] = useState(15);
+  const [artistTitleCountdown, setArtistTitleCountdown] = useState(ARTIST_TITLE_SECONDS);
   const [buzzCountdown, setBuzzCountdown] = useState(8);
 
   const isMyTurn = playerId === activePlayerId;
@@ -109,18 +111,22 @@ export default function GamePage() {
     setBuzzTimeout(false);
   }, [round]);
 
-  // Artist+title countdown (active player, 15 s)
+  // Artist+title countdown (active player, 30 s per stage).
+  // Resets to a fresh 30 s whenever the stage changes: once when the guess
+  // window opens (artist stage), and again once the artist is picked (title stage).
   useEffect(() => {
     if (!artistTitleOpen || !isMyTurn) return;
-    setArtistTitleCountdown(15);
+    setArtistTitleCountdown(ARTIST_TITLE_SECONDS);
     const id = setInterval(() => {
       setArtistTitleCountdown(n => {
-        if (n <= 1) { clearInterval(id); return 0; }
-        return n - 1;
+        const next = n <= 1 ? 0 : n - 1;
+        if (next <= 10 && next > 0) navigator.vibrate?.(200);
+        if (next <= 0) clearInterval(id);
+        return next;
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [artistTitleOpen, isMyTurn]);
+  }, [artistTitleOpen, isMyTurn, selectedArtist]);
 
   // Buzz steal countdown (buzzing player, 8 s)
   useEffect(() => {
@@ -149,6 +155,11 @@ export default function GamePage() {
 
   const handleArtistTitleSkip = () => {
     emit(EVENTS.GAME_GUESS_ARTIST_TITLE, { artist: '', title: '' });
+  };
+
+  const handleArtistTitleArtistSelect = (artist: string) => {
+    setSelectedArtist(artist);
+    emit(EVENTS.GAME_ARTIST_TITLE_ARTIST_PICKED);
   };
 
   // Auto-submit when both artist and title are selected
@@ -334,12 +345,24 @@ export default function GamePage() {
         {/* Pro mode: active player guessing artist + title after correct placement */}
         {isMyTurn && artistTitleOpen && artistChoices && titleChoices && (
           <div className="flex flex-col gap-3 animate-slide-up">
-            <div className={`flex items-center justify-center gap-1.5 text-sm font-bold px-3 py-1 rounded-full self-center ${
-              artistTitleCountdown <= 5 ? 'bg-red-500/30 text-red-200' :
-              artistTitleCountdown <= 8 ? 'bg-yellow-500/30 text-yellow-200' :
-              'bg-white/10 text-white/70'
-            }`}>
-              ⏱ {artistTitleCountdown}s
+            <div className="flex flex-col items-center gap-2 self-stretch">
+              <div className={`flex items-center gap-2 text-4xl font-black px-6 py-2 rounded-2xl tabular-nums transition-colors ${
+                artistTitleCountdown <= 10 ? 'bg-red-500/30 text-red-200 animate-pulse' :
+                artistTitleCountdown <= 20 ? 'bg-yellow-500/30 text-yellow-200' :
+                'bg-white/15 text-white'
+              }`}>
+                ⏱ {artistTitleCountdown}s
+              </div>
+              <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ease-linear ${
+                    artistTitleCountdown <= 10 ? 'bg-red-400' :
+                    artistTitleCountdown <= 20 ? 'bg-yellow-400' :
+                    'bg-white'
+                  }`}
+                  style={{ width: `${Math.max(0, (artistTitleCountdown / ARTIST_TITLE_SECONDS) * 100)}%` }}
+                />
+              </div>
             </div>
             <div>
               <p className="text-white/70 text-sm text-center mb-2">Who is the artist?</p>
@@ -347,7 +370,7 @@ export default function GamePage() {
                 {artistChoices.map(artist => (
                   <button
                     key={artist}
-                    onClick={() => setSelectedArtist(artist)}
+                    onClick={() => handleArtistTitleArtistSelect(artist)}
                     className={`w-full py-3 px-4 rounded-xl font-medium active:scale-95 transition-all border ${
                       selectedArtist === artist
                         ? 'bg-white text-brand-900 border-white'
