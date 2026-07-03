@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { emit } from '../hooks/useSocket';
 import { EVENTS } from '../types';
 import { useGameStore } from '../store/gameStore';
@@ -98,6 +98,29 @@ export default function GamePage() {
   const [buzzTimeout, setBuzzTimeout] = useState(false);
   const [artistTitleCountdown, setArtistTitleCountdown] = useState(ARTIST_TITLE_SECONDS);
   const [buzzCountdown, setBuzzCountdown] = useState(8);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // iOS Safari never implements navigator.vibrate, so a short audible tick
+  // is the only reliable way to alert the player there — this covers both.
+  const playTick = () => {
+    navigator.vibrate?.(200);
+    try {
+      let ctx = audioCtxRef.current;
+      if (!ctx) { ctx = new AudioContext(); audioCtxRef.current = ctx; }
+      if (ctx.state === 'suspended') ctx.resume();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    } catch {
+      // Web Audio unavailable — silently skip, vibration (if supported) already fired above
+    }
+  };
 
   const isMyTurn = playerId === activePlayerId;
   const isOtherPlayersTurn = !isMyTurn;
@@ -120,7 +143,7 @@ export default function GamePage() {
     const id = setInterval(() => {
       setArtistTitleCountdown(n => {
         const next = n <= 1 ? 0 : n - 1;
-        if (next <= 10 && next > 0) navigator.vibrate?.(200);
+        if (next <= 10 && next > 0) playTick();
         if (next <= 0) clearInterval(id);
         return next;
       });
@@ -346,17 +369,17 @@ export default function GamePage() {
         {isMyTurn && artistTitleOpen && artistChoices && titleChoices && (
           <div className="flex flex-col gap-3 animate-slide-up">
             <div className="flex flex-col items-center gap-2 self-stretch">
-              <div className={`flex items-center gap-2 text-4xl font-black px-6 py-2 rounded-2xl tabular-nums transition-colors ${
-                artistTitleCountdown <= 10 ? 'bg-red-500/30 text-red-200 animate-pulse' :
-                artistTitleCountdown <= 20 ? 'bg-yellow-500/30 text-yellow-200' :
-                'bg-white/15 text-white'
+              <div className={`flex items-center gap-2 font-black px-6 py-2 rounded-2xl tabular-nums border-2 transition-colors ${
+                artistTitleCountdown <= 10 ? 'text-5xl bg-red-600 text-white border-red-300 animate-urgent-pulse' :
+                artistTitleCountdown <= 20 ? 'text-4xl bg-yellow-500 text-brand-900 border-yellow-200' :
+                'text-4xl bg-white/15 text-white border-transparent'
               }`}>
                 ⏱ {artistTitleCountdown}s
               </div>
               <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-1000 ease-linear ${
-                    artistTitleCountdown <= 10 ? 'bg-red-400' :
+                    artistTitleCountdown <= 10 ? 'bg-red-500' :
                     artistTitleCountdown <= 20 ? 'bg-yellow-400' :
                     'bg-white'
                   }`}
