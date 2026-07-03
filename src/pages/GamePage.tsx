@@ -99,6 +99,7 @@ export default function GamePage() {
   const [artistTitleCountdown, setArtistTitleCountdown] = useState(ARTIST_TITLE_SECONDS);
   const [buzzCountdown, setBuzzCountdown] = useState(8);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const titleSectionRef = useRef<HTMLDivElement | null>(null);
 
   // iOS Safari never implements navigator.vibrate, so a short audible tick
   // is the only reliable way to alert the player there — this covers both.
@@ -184,6 +185,13 @@ export default function GamePage() {
     setSelectedArtist(artist);
     emit(EVENTS.GAME_ARTIST_TITLE_ARTIST_PICKED);
   };
+
+  // Once the artist is picked, bring the title choices + their own timer into view
+  useEffect(() => {
+    if (selectedArtist) {
+      titleSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [selectedArtist]);
 
   // Auto-submit when both artist and title are selected
   useEffect(() => {
@@ -366,8 +374,8 @@ export default function GamePage() {
         )}
 
         {/* Pro mode: active player guessing artist + title after correct placement */}
-        {isMyTurn && artistTitleOpen && artistChoices && titleChoices && (
-          <div className="flex flex-col gap-3 animate-slide-up">
+        {isMyTurn && artistTitleOpen && artistChoices && titleChoices && (() => {
+          const countdown = (
             <div className="flex flex-col items-center gap-2 self-stretch">
               <div className={`flex items-center gap-2 font-black px-6 py-2 rounded-2xl tabular-nums border-2 transition-colors ${
                 artistTitleCountdown <= 10 ? 'text-5xl bg-red-600 text-white border-red-300 animate-urgent-pulse' :
@@ -387,6 +395,10 @@ export default function GamePage() {
                 />
               </div>
             </div>
+          );
+          return (
+          <div className="flex flex-col gap-3 animate-slide-up">
+            {countdown}
             <div>
               <p className="text-white/70 text-sm text-center mb-2">Who is the artist?</p>
               <div className="flex flex-col gap-2">
@@ -405,7 +417,8 @@ export default function GamePage() {
                 ))}
               </div>
             </div>
-            <div>
+            <div ref={titleSectionRef}>
+              {countdown}
               <p className="text-white/70 text-sm text-center mb-2">What is the song title?</p>
               <div className="flex flex-col gap-2">
                 {titleChoices.map(title => (
@@ -430,7 +443,8 @@ export default function GamePage() {
               Skip
             </button>
           </div>
-        )}
+          );
+        })()}
 
         {/* Pro mode: spectator view while active player guesses artist + title */}
         {!isMyTurn && artistTitleOpen && (
